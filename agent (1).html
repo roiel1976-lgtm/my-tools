@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>סוכן ESHUV</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f7fb;--white:#fff;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --text:#1e293b;--muted:#64748b;--hint:#94a3b8;
+  --blue:#2563eb;--blue-l:#eff6ff;
+  --green:#16a34a;--green-l:#f0fdf4;
+  --amber:#d97706;--amber-l:#fffbeb;
+  --red:#dc2626;--red-l:#fef2f2;
+  --wa:#25d366;
+  --r:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Heebo',sans-serif;background:var(--bg);color:var(--text);font-size:15px}
+
+/* ── LAYOUT ── */
+.app{display:flex;flex-direction:column;height:100vh}
+
+/* ── HEADER ── */
+.header{background:var(--white);border-bottom:2px solid var(--border);padding:0 28px;height:68px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.header-brand{display:flex;align-items:center;gap:14px}
+.brand-icon{width:46px;height:46px;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.brand-name{font-size:20px;font-weight:700;letter-spacing:-0.5px}
+.brand-status{font-size:12px;color:var(--green);display:flex;align-items:center;gap:5px;margin-top:2px}
+.brand-status::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--green)}
+.header-stats{display:flex;gap:28px}
+.hstat{text-align:center}
+.hstat-v{font-size:22px;font-weight:700}
+.hstat-l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:1px}
+.header-btns{display:flex;gap:10px}
+.hbtn{padding:10px 20px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;font-family:'Heebo',sans-serif;border:1.5px solid var(--border2);background:var(--white);color:var(--text);transition:all .15s}
+.hbtn:hover{background:var(--bg);border-color:var(--blue);color:var(--blue)}
+.hbtn-wa{background:var(--wa);border-color:var(--wa);color:#fff}
+.hbtn-wa:hover{background:#1da851;color:#fff;border-color:#1da851}
+
+/* ── BODY ── */
+.body{display:flex;flex:1;overflow:hidden}
+
+/* ── CHAT ── */
+.chat{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.chat-msgs{flex:1;overflow-y:auto;padding:28px 32px;display:flex;flex-direction:column;gap:18px}
+.chat-msgs::-webkit-scrollbar{width:6px}
+.chat-msgs::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* messages */
+.msg{display:flex;gap:12px;max-width:72%}
+.msg.user{align-self:flex-start;flex-direction:row-reverse}
+.msg.agent{align-self:flex-end}
+.mavatar{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.msg.agent .mavatar{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff}
+.msg.user .mavatar{background:var(--bg);border:1.5px solid var(--border);font-size:20px}
+.mbubble{padding:13px 18px;border-radius:18px;font-size:14px;line-height:1.65}
+.msg.agent .mbubble{background:var(--white);border:1.5px solid var(--border);border-bottom-right-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.msg.user .mbubble{background:var(--blue);color:#fff;border-bottom-left-radius:4px}
+.mtime{font-size:11px;color:var(--hint);margin-top:5px}
+.msg.user .mtime{text-align:right}
+
+/* typing */
+.typing-dots{display:flex;gap:5px;padding:14px 18px;align-items:center}
+.typing-dots span{width:8px;height:8px;border-radius:50%;background:var(--hint);animation:bob .9s infinite}
+.typing-dots span:nth-child(2){animation-delay:.15s}
+.typing-dots span:nth-child(3){animation-delay:.3s}
+@keyframes bob{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-7px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.msg{animation:fadeUp .2s ease}
+
+/* quick actions */
+.quick{padding:14px 28px;border-top:1px solid var(--border);background:var(--white)}
+.quick-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
+.quick-row{display:flex;gap:8px;flex-wrap:wrap}
+.qbtn{padding:8px 16px;border-radius:20px;border:1.5px solid var(--border2);background:var(--white);font-size:13px;font-weight:500;cursor:pointer;font-family:'Heebo',sans-serif;color:var(--muted);transition:all .15s;white-space:nowrap}
+.qbtn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-l)}
+
+/* input */
+.input-area{padding:16px 28px;border-top:2px solid var(--border);background:var(--white);display:flex;gap:12px;align-items:flex-end}
+.chat-in{flex:1;border:1.5px solid var(--border2);border-radius:14px;padding:13px 18px;font-size:14px;font-family:'Heebo',sans-serif;color:var(--text);outline:none;resize:none;max-height:140px;line-height:1.55;transition:border-color .15s}
+.chat-in:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.08)}
+.send-b{width:48px;height:48px;border-radius:14px;background:var(--blue);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;transition:all .15s;flex-shrink:0}
+.send-b:hover{background:#1d4ed8;transform:scale(1.05)}
+.send-b:disabled{background:var(--hint);cursor:not-allowed;transform:none}
+
+/* ── SIDEBAR ── */
+.sidebar{width:320px;background:var(--white);border-right:2px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.sb-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sb-title{font-size:14px;font-weight:700;color:var(--text)}
+.sb-add{padding:6px 14px;border-radius:8px;background:var(--blue);color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:'Heebo',sans-serif}
+.sb-search{padding:12px 16px;border-bottom:1px solid var(--border)}
+.sb-search input{width:100%;border:1.5px solid var(--border2);border-radius:10px;padding:9px 14px;font-size:13px;font-family:'Heebo',sans-serif;color:var(--text);outline:none}
+.sb-search input:focus{border-color:var(--blue)}
+.sb-list{flex:1;overflow-y:auto;padding:10px}
+.sb-list::-webkit-scrollbar{width:4px}
+.sb-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* lead card */
+.lcard{padding:13px 14px;border-radius:10px;border:1.5px solid var(--border);margin-bottom:8px;cursor:pointer;transition:all .15s}
+.lcard:hover{border-color:var(--blue);background:var(--blue-l)}
+.lcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px}
+.lcard-name{font-weight:600;font-size:14px}
+.lcard-loc{font-size:12px;color:var(--muted);margin-bottom:6px}
+.lcard-btm{display:flex;justify-content:space-between;align-items:center}
+.lcard-phone{font-size:11px;color:var(--hint);font-family:monospace;direction:ltr}
+
+/* badges */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.b-marketing{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.b-process{background:#fffbeb;color:#b45309;border:1px solid #fde68a}
+.b-active{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
+.b-blocked{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+
+/* action buttons in chat */
+.action-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.abtn{padding:9px 18px;border-radius:10px;border:1.5px solid;font-size:13px;font-weight:600;cursor:pointer;font-family:'Heebo',sans-serif;transition:all .15s}
+.abtn-wa{background:var(--wa);border-color:var(--wa);color:#fff}
+.abtn-cancel{background:var(--white);border-color:var(--border2);color:var(--muted)}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,0.5);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:20px;padding:28px;width:520px;max-width:95vw;max-height:88vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,0.15)}
+.modal h2{font-size:18px;font-weight:700;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center}
+.modal-x{cursor:pointer;color:var(--muted);font-size:22px;line-height:1}
+.mf{margin-bottom:14px}
+.mf label{display:block;font-size:11px;color:var(--muted);font-weight:600;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.4px}
+.mf input,.mf select,.mf textarea{width:100%;border:1.5px solid var(--border2);border-radius:10px;padding:10px 14px;font-size:14px;font-family:'Heebo',sans-serif;color:var(--text);outline:none;transition:border-color .15s}
+.mf input:focus,.mf select:focus,.mf textarea:focus{border-color:var(--blue)}
+.mf textarea{min-height:100px;resize:vertical}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}
+.mbtn{padding:10px 22px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Heebo',sans-serif;border:1.5px solid var(--border2);background:var(--white);color:var(--text);transition:all .15s}
+.mbtn-primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.mbtn-red{background:var(--red);border-color:var(--red);color:#fff}
+.info-box{background:var(--blue-l);border:1.5px solid #bfdbfe;border-radius:10px;padding:12px 16px;font-size:13px;color:var(--blue);margin-bottom:16px;line-height:1.6}
+
+/* spinner */
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:5px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+@media(max-width:700px){.sidebar{display:none}.header-stats{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-brand">
+    <div class="brand-icon">🤖</div>
+    <div>
+      <div class="brand-name">סוכן ESHUV</div>
+      <div class="brand-status">מחובר ופעיל</div>
+    </div>
+  </div>
+  <div class="header-stats">
+    <div class="hstat"><div class="hstat-v" id="hs-total" style="color:var(--blue)">0</div><div class="hstat-l">לידים</div></div>
+    <div class="hstat"><div class="hstat-v" id="hs-mkt" style="color:var(--blue)">0</div><div class="hstat-l">שיווק</div></div>
+    <div class="hstat"><div class="hstat-v" id="hs-act" style="color:var(--green)">0</div><div class="hstat-l">פעיל</div></div>
+    <div class="hstat"><div class="hstat-v" id="hs-today" style="color:var(--wa)">0</div><div class="hstat-l">היום</div></div>
+  </div>
+  <div class="header-btns">
+    <button class="hbtn" onclick="openImport()">📥 ייבוא לידים</button>
+    <button class="hbtn" onclick="openTpl()">📝 תבניות</button>
+    <button class="hbtn hbtn-wa" onclick="qchat('שלח פנייה ראשונה ל-10 לידים')">💬 שלח עכשיו</button>
+  </div>
+</div>
+
+<div class="body">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-header">
+    <span class="sb-title">לידים (<span id="sb-count">0</span>)</span>
+    <button class="sb-add" onclick="openImport()">+ ייבא</button>
+  </div>
+  <div class="sb-search"><input type="text" id="sb-search" placeholder="🔍 חיפוש..." oninput="renderSB()"></div>
+  <div class="sb-list" id="sb-list"></div>
+</div>
+
+<!-- CHAT -->
+<div class="chat">
+  <div class="chat-msgs" id="chat-msgs">
+    <div class="msg agent">
+      <div class="mavatar">🤖</div>
+      <div>
+        <div class="mbubble">שלום! אני סוכן השיווק של ESHUV 👋<br><br>אני יכול לעזור לך ב:<br>• שליחת WhatsApp ללידים<br>• בניית תחזית עבודה<br>• ניהול ועדכון לידים<br>• ניהול תבניות הודעה<br><br>מה תרצה לעשות?</div>
+        <div class="mtime">עכשיו</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quick">
+    <div class="quick-label">פעולות מהירות</div>
+    <div class="quick-row">
+      <button class="qbtn" onclick="qchat('תראה לי סטטוס הלידים')">📊 סטטוס</button>
+      <button class="qbtn" onclick="qchat('בנה תחזית עבודה לחודש הקרוב')">📈 תחזית</button>
+      <button class="qbtn" onclick="qchat('מי הלידים הבאים לפנייה?')">🎯 הבא בתור</button>
+      <button class="qbtn" onclick="qchat('שלח פנייה ראשונה ל-5 לידים')">💬 שלח ל-5</button>
+      <button class="qbtn" onclick="qchat('כמה לידים יש לי בכל סטטוס?')">👥 סיכום</button>
+      <button class="qbtn" onclick="qchat('תראה לי את תוכן תבנית הפנייה הראשונה')">📝 תבנית</button>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <textarea class="chat-in" id="chat-in" rows="1" placeholder="כתוב הוראה לסוכן... (Enter לשליחה, Shift+Enter לשורה חדשה)"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"
+      oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,140)+'px'"></textarea>
+    <button class="send-b" id="send-b" onclick="sendMsg()" title="שלח">➤</button>
+  </div>
+</div>
+
+</div><!-- /body -->
+</div><!-- /app -->
+
+<!-- IMPORT MODAL -->
+<div class="overlay" id="imp-overlay" onclick="if(event.target===this)closeImport()">
+  <div class="modal">
+    <h2>📥 ייבוא לידים<span class="modal-x" onclick="closeImport()">✕</span></h2>
+    <div class="info-box">העתק מאקסל (Ctrl+C) והדבק כאן.<br><strong>עמודות:</strong> מועצה / יישוב / איש קשר / טלפון / מייל / סטטוס</div>
+    <div class="mf"><label>הדבק נתונים</label>
+      <textarea id="paste-in" dir="ltr" rows="8" placeholder="מועצה&#9;יישוב&#9;שם&#9;טלפון&#9;מייל&#9;סטטוס&#10;אשכול&#9;אוהד&#9;רונן כהן&#9;0546668843&#9;email@test.com&#9;שיווק"></textarea>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <button class="mbtn mbtn-red" onclick="clearAll()">🗑 מחק הכל</button>
+      <div class="modal-footer" style="margin:0;padding:0;border:none">
+        <button class="mbtn" onclick="closeImport()">ביטול</button>
+        <button class="mbtn mbtn-primary" onclick="doImport()">📥 ייבא</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TEMPLATES MODAL -->
+<div class="overlay" id="tpl-overlay" onclick="if(event.target===this)closeTpl()">
+  <div class="modal" style="width:580px">
+    <h2>📝 תבניות הודעה<span class="modal-x" onclick="closeTpl()">✕</span></h2>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button class="qbtn" id="tb0" onclick="showTpl(0)" style="border-color:var(--blue);color:var(--blue);background:var(--blue-l)">1️⃣ פנייה ראשונה</button>
+      <button class="qbtn" id="tb1" onclick="showTpl(1)">2️⃣ פולאפ 1</button>
+      <button class="qbtn" id="tb2" onclick="showTpl(2)">3️⃣ פולאפ 2</button>
+    </div>
+    <div id="tpl-form"></div>
+    <div class="modal-footer">
+      <button class="mbtn" onclick="closeTpl()">סגור</button>
+      <button class="mbtn mbtn-primary" onclick="saveTpls()">💾 שמור תבניות</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CLAUDE='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';
+const MUMBLE_KEY='775a16f8b99029617d4f096ca030d850bb09c344-058a-44e0-97ca-7ed2adc598c5';
+const MUMBLE_URL='https://app.mumble.co.il/mumbleapi/send-template';
+const DEF_TPL='8d087b49-0097-4242-a204-b3b1889f0463';
+const STATUSES=['שיווק','בתהליך','פעיל','חסום'];
+const SBADGE={'שיווק':'b-marketing','בתהליך':'b-process','פעיל':'b-active','חסום':'b-blocked'};
+
+let LEADS=[],SH=[],TPLS=[],HIST=[];
+
+function load(){
+  try{LEADS=JSON.parse(localStorage.getItem('leads')||'[]');}catch(e){LEADS=[];}
+  try{SH=JSON.parse(localStorage.getItem('sh')||'[]');}catch(e){SH=[];}
+  try{TPLS=JSON.parse(localStorage.getItem('tpls')||'null')||defTpls();}catch(e){TPLS=defTpls();}
+}
+function saveL(){localStorage.setItem('leads',JSON.stringify(LEADS));}
+function saveSH(){localStorage.setItem('sh',JSON.stringify(SH));}
+function saveTPLS(){localStorage.setItem('tpls',JSON.stringify(TPLS));}
+
+function defTpls(){return[
+  {name:'פנייה ראשונה',mid:DEF_TPL,
+   p1:'🔔 היי מנהלים יישוב או קהילה? 🌟🌟',
+   p2:'בימים אלה יישובים רבים עושים צעד משמעותי קדימה ומשדרגים את המערכת הדיגיטלית שלהם ומתחברים למערכת ESHUV\n\n✔️ אתר מתקדם ומותאם לקהילה\n✔️ אפליקציה המחברת תושבים, שירותים ופעילויות\n✔️ דשבורד תושבים, משפחות ופילוחים חכמים\n✔️ ממשק וואטסאפ רשמי של מטא\n✔️ סליקת אשראי ותשלומים\n✔️ למעלה מ-50 מודולים עם AI חכמה ✨',
+   p3:'◾ רוצים לראות איך זה נראה?\nEshuv.co.il\nרואי אליהו https://did.li/mFLOf',email:''},
+  {name:'פולאפ 1',mid:DEF_TPL,p1:'היי {{שם}} 👋',p2:'פנינו אליך לפני מספר ימים בנוגע למערכת ESHUV ליישוב {{יישוב}}.\nרצינו לוודא שקיבלת.',p3:'נשמח לקבוע שיחה של 15 דקות 🙏\nEshuv.co.il',email:''},
+  {name:'פולאפ 2',mid:DEF_TPL,p1:'שלום {{שם}}, ניסיון אחרון 🙏',p2:'אם {{יישוב}} מעוניין בפתרון דיגיטלי מתקדם — אנחנו כאן.',p3:'Eshuv.co.il | רואי אליהו https://did.li/mFLOf',email:''},
+];}
+
+function todayISO(){return new Date().toISOString().split('T')[0];}
+function nowT(){return new Date().toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'});}
+function fmtN(n){return(n||0).toLocaleString('he-IL');}
+function fmtP(p){if(!p)return'';p=String(p).replace(/\D/g,'');if(p.startsWith('0'))return'972'+p.slice(1);return p;}
+
+function stats(){
+  const s={total:LEADS.length,mkt:0,act:0,proc:0,blk:0,today:0};
+  LEADS.forEach(l=>{
+    if(l.status==='שיווק')s.mkt++;
+    if(l.status==='פעיל')s.act++;
+    if(l.status==='בתהליך')s.proc++;
+    if(l.status==='חסום')s.blk++;
+  });
+  s.today=SH.filter(h=>h.date===todayISO()).length;
+  return s;
+}
+
+function updateUI(){
+  const s=stats();
+  document.getElementById('hs-total').textContent=fmtN(s.total);
+  document.getElementById('hs-mkt').textContent=fmtN(s.mkt);
+  document.getElementById('hs-act').textContent=fmtN(s.act);
+  document.getElementById('hs-today').textContent=fmtN(s.today);
+  document.getElementById('sb-count').textContent=fmtN(s.total);
+  renderSB();
+}
+
+function renderSB(){
+  const q=(document.getElementById('sb-search').value||'').toLowerCase();
+  const list=LEADS.filter(l=>!q||l.name.toLowerCase().includes(q)||l.village.toLowerCase().includes(q)||l.council.toLowerCase().includes(q)).slice(0,40);
+  document.getElementById('sb-list').innerHTML=list.length?list.map(l=>`
+    <div class="lcard" onclick="qchat('ספר לי על ${l.name} מ${l.village}')">
+      <div class="lcard-top">
+        <div class="lcard-name">${l.name}</div>
+        <span class="badge ${SBADGE[l.status]||'b-marketing'}">${l.status}</span>
+      </div>
+      <div class="lcard-loc">${l.village} · ${l.council}</div>
+      <div class="lcard-btm">
+        <span class="lcard-phone">${l.phone||''}</span>
+        ${l.phone?`<button onclick="event.stopPropagation();sendOne('${l.id}')" style="padding:4px 10px;border-radius:8px;background:var(--wa);color:#fff;border:none;font-size:11px;font-weight:600;cursor:pointer;font-family:'Heebo',sans-serif">💬</button>`:''}
+      </div>
+    </div>`).join(''):'<div style="color:var(--muted);font-size:13px;text-align:center;padding:28px;line-height:1.8">אין לידים עדיין.<br><button onclick="openImport()" style="color:var(--blue);background:none;border:none;cursor:pointer;font-family:\'Heebo\',sans-serif;font-size:13px;font-weight:600">לחץ כאן לייבוא</button></div>';
+}
+
+// ─── CHAT ───
+function addMsg(role,html,extra){
+  const c=document.getElementById('chat-msgs');
+  const d=document.createElement('div');
+  d.className='msg '+role;
+  d.innerHTML=`<div class="mavatar">${role==='agent'?'🤖':'👤'}</div><div><div class="mbubble">${html}${extra||''}</div><div class="mtime">${nowT()}</div></div>`;
+  c.appendChild(d);
+  c.scrollTop=c.scrollHeight;
+  return d;
+}
+function addTyping(){
+  const c=document.getElementById('chat-msgs');
+  const d=document.createElement('div');
+  d.className='msg agent';d.id='typ';
+  d.innerHTML=`<div class="mavatar">🤖</div><div><div class="mbubble"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`;
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+function rmTyping(){const e=document.getElementById('typ');if(e)e.remove();}
+
+function qchat(t){document.getElementById('chat-in').value=t;sendMsg();}
+
+async function sendMsg(){
+  const inp=document.getElementById('chat-in');
+  const btn=document.getElementById('send-b');
+  const txt=inp.value.trim();
+  if(!txt||btn.disabled)return;
+  inp.value='';inp.style.height='auto';
+  addMsg('user',txt.replace(/\n/g,'<br>'));
+  HIST.push({role:'user',content:txt});
+  btn.disabled=true;addTyping();
+
+  const s=stats();
+  const councils=[...new Set(LEADS.map(l=>l.council))].slice(0,15).join(', ');
+  const sys=`אתה סוכן שיווק חכם של חברת ESHUV — מערכת דיגיטלית לניהול יישובים וקהילות.
+אתה עוזר לרואי אליהו, מנהל המכירות.
+
+נתוני לידים עכשיו:
+- סה"כ: ${s.total} | שיווק: ${s.mkt} | בתהליך: ${s.proc} | פעיל: ${s.act} | חסום: ${s.blk}
+- נשלחו היום: ${s.today}
+- מועצות: ${councils||'טרם יובאו'}
+
+תבנית פנייה ראשונה:
+"${TPLS[0]?.p1||''}\n${TPLS[0]?.p2?.slice(0,100)||''}..."
+
+הוראות:
+- ענה תמיד בעברית, קצר וברור
+- כשמבקשים שליחה — שאל אישור לפני
+- כשמבקשים תחזית — חשב לפי הנתונים
+- אם אין לידים — הסבר לייבא
+- אל תשתמש ב-HTML`;
+
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':CLAUDE,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:800,system:sys,messages:HIST.slice(-8)})
+    });
+    const d=await r.json();
+    rmTyping();
+    if(d.content?.[0]){
+      const reply=d.content[0].text;
+      HIST.push({role:'assistant',content:reply});
+      const html=reply.replace(/\n/g,'<br>');
+      const msgEl=addMsg('agent',html);
+      // show send buttons if relevant
+      if((txt.includes('שלח')||txt.includes('פנייה'))&&s.mkt>0&&reply.includes('לשלוח')||reply.includes('אישור')){
+        const row=document.createElement('div');
+        row.className='action-row';
+        row.innerHTML=`
+          <button class="abtn abtn-wa" onclick="sendBatch(5,this.parentElement)">✅ שלח ל-5</button>
+          <button class="abtn abtn-wa" onclick="sendBatch(10,this.parentElement)">✅ שלח ל-10</button>
+          <button class="abtn abtn-wa" onclick="sendBatch(25,this.parentElement)">✅ שלח ל-25</button>
+          <button class="abtn abtn-cancel" onclick="this.parentElement.remove();addMsg('agent','בסדר, לא שולח.')">❌ ביטול</button>`;
+        msgEl.querySelector('.mbubble').appendChild(row);
+      }
+    } else {addMsg('agent','סליחה, נתקלתי בבעיה. נסה שוב.');}
+  }catch(e){
+    rmTyping();
+    addMsg('agent','שגיאת חיבור. אם הקובץ נפתח מקומית — חיבור API לא יעבוד. העלה ל-Vercel.');
+  }
+  btn.disabled=false;
+  document.getElementById('chat-in').focus();
+}
+
+async function sendBatch(count,rowEl){
+  const pool=LEADS.filter(l=>l.phone&&l.status==='שיווק').slice(0,count);
+  if(!pool.length){addMsg('agent','אין לידים בסטטוס שיווק עם טלפון.');return;}
+  if(rowEl)rowEl.remove();
+  const progMsg=addMsg('agent',`<span class="spin"></span>שולח ל-${pool.length} לידים...`);
+  let ok=0,fail=0;
+  for(const l of pool){
+    const ph=fmtP(l.phone);if(!ph)continue;
+    try{
+      const r=await fetch(MUMBLE_URL,{method:'POST',
+        headers:{'Mumble-Api-Key':MUMBLE_KEY,'Content-Type':'application/json'},
+        body:JSON.stringify({template_id:TPLS[0]?.mid||DEF_TPL,customer_phone:ph})});
+      const d=await r.json();
+      if(r.ok||d.success!==false){l.status='בתהליך';l.last_contact=todayISO();l.contact_count=String((parseInt(l.contact_count)||0)+1);SH.unshift({name:l.name,village:l.village,phone:ph,ok:true,date:todayISO()});ok++;}
+      else fail++;
+    }catch(e){fail++;}
+    await new Promise(r=>setTimeout(r,700));
+  }
+  saveL();saveSH();updateUI();
+  const bub=progMsg.querySelector('.mbubble');
+  if(bub)bub.innerHTML=`✅ נשלחו <strong>${ok}</strong> הודעות בהצלחה!${fail?`<br>❌ נכשלו: ${fail}`:''}`;
+  HIST.push({role:'assistant',content:`נשלחו ${ok} הודעות.`});
+}
+
+async function sendOne(id){
+  const l=LEADS.find(x=>x.id===id);if(!l||!l.phone)return;
+  const ph=fmtP(l.phone);
+  try{
+    const r=await fetch(MUMBLE_URL,{method:'POST',
+      headers:{'Mumble-Api-Key':MUMBLE_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({template_id:TPLS[0]?.mid||DEF_TPL,customer_phone:ph})});
+    const d=await r.json();
+    if(r.ok||d.success!==false){l.status='בתהליך';l.last_contact=todayISO();l.contact_count=String((parseInt(l.contact_count)||0)+1);SH.unshift({name:l.name,village:l.village,phone:ph,ok:true,date:todayISO()});saveL();saveSH();updateUI();addMsg('agent',`✅ נשלח ל-${l.name}!`);}
+    else addMsg('agent',`❌ נכשל: ${JSON.stringify(d)}`);
+  }catch(e){addMsg('agent','שגיאת רשת');}
+}
+
+// ─── IMPORT ───
+function openImport(){document.getElementById('imp-overlay').classList.add('open');}
+function closeImport(){document.getElementById('imp-overlay').classList.remove('open');}
+function doImport(){
+  const raw=document.getElementById('paste-in').value.trim();
+  if(!raw)return;
+  const lines=raw.split('\n').filter(l=>l.trim());
+  let start=0;
+  if(lines[0].split('\t').some(c=>c.includes('מועצה')||c.includes('ישוב')||c.includes('שם')))start=1;
+  let added=0;
+  for(let i=start;i<lines.length;i++){
+    const c=lines[i].split('\t').map(x=>x.trim());
+    if(c.length<2)continue;
+    const council=c[0]||'',village=c[1]||'',name=c[2]||'',phone=c[3]||'',email=c[4]||'';
+    let status=c[5]||'שיווק';
+    if(!STATUSES.includes(status))status='שיווק';
+    if(!name&&!phone)continue;
+    LEADS.push({id:'C'+String(LEADS.length+1).padStart(4,'0'),council,village,name,phone,email,status,last_contact:'',contact_count:'0',notes:''});
+    added++;
+  }
+  saveL();updateUI();document.getElementById('paste-in').value='';closeImport();
+  addMsg('agent',`✅ יובאו <strong>${added}</strong> לידים!<br>סה"כ במערכת: <strong>${LEADS.length}</strong>`);
+  HIST.push({role:'assistant',content:`יובאו ${added} לידים.`});
+}
+function clearAll(){
+  if(!confirm('למחוק את כל '+LEADS.length+' הלידים?'))return;
+  LEADS=[];SH=[];saveL();saveSH();updateUI();closeImport();
+  addMsg('agent','🗑 כל הנתונים נמחקו.');
+}
+
+// ─── TEMPLATES ───
+let curTpl=0;
+function openTpl(){document.getElementById('tpl-overlay').classList.add('open');showTpl(0);}
+function closeTpl(){document.getElementById('tpl-overlay').classList.remove('open');}
+function showTpl(i){
+  curTpl=i;
+  [0,1,2].forEach(j=>{
+    const el=document.getElementById('tb'+j);
+    if(!el)return;
+    el.style.borderColor=j===i?'var(--blue)':'';
+    el.style.color=j===i?'var(--blue)':'';
+    el.style.background=j===i?'var(--blue-l)':'';
+  });
+  const t=TPLS[i]||{};
+  document.getElementById('tpl-form').innerHTML=`
+    <div class="mf"><label>Mumble Template ID</label><input id="t-mid" value="${t.mid||''}" dir="ltr" oninput="TPLS[${i}].mid=this.value"></div>
+    <div class="mf"><label>פסקה 1 — פתיח</label><textarea id="t-p1" rows="2" oninput="TPLS[${i}].p1=this.value">${t.p1||''}</textarea></div>
+    <div class="mf"><label>פסקה 2 — תוכן</label><textarea id="t-p2" rows="5" oninput="TPLS[${i}].p2=this.value">${t.p2||''}</textarea></div>
+    <div class="mf"><label>פסקה 3 — סיום</label><textarea id="t-p3" rows="2" oninput="TPLS[${i}].p3=this.value">${t.p3||''}</textarea></div>
+    <div class="mf"><label>גרסת דוא"ל (אופציונלי)</label><textarea id="t-email" rows="3" oninput="TPLS[${i}].email=this.value" placeholder="נוסח למייל...">${t.email||''}</textarea></div>
+    <div style="background:var(--blue-l);border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;font-size:12px;color:var(--blue)">משתנים: <strong>{{שם}}</strong> · <strong>{{יישוב}}</strong> · <strong>{{מועצה}}</strong></div>`;
+}
+function saveTpls(){saveTPLS();closeTpl();addMsg('agent','✅ התבניות נשמרו!');}
+
+// ─── INIT ───
+load();updateUI();
+if(LEADS.length>0){
+  const s=stats();
+  setTimeout(()=>{
+    addMsg('agent',`ברוך הבא! יש לך <strong>${s.total}</strong> לידים.<br>שיווק: ${s.mkt} | בתהליך: ${s.proc} | פעיל: ${s.act}<br><br>מה עושים היום?`);
+    HIST.push({role:'assistant',content:`יש ${s.total} לידים. שיווק: ${s.mkt}, בתהליך: ${s.proc}, פעיל: ${s.act}.`});
+  },400);
+}
+</script>
+</body>
+</html>
