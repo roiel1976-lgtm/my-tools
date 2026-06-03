@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>כניסה — הכלים שלי</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Heebo', sans-serif;
+  background: #0f1117;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e8eaf0;
+}
+.login-card {
+  background: #181c27;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+}
+.icon {
+  font-size: 40px;
+  margin-bottom: 20px;
+}
+h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.sub {
+  font-size: 13px;
+  color: #7a8099;
+  margin-bottom: 32px;
+}
+.field {
+  margin-bottom: 16px;
+  text-align: right;
+}
+label {
+  display: block;
+  font-size: 12px;
+  color: #7a8099;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+input[type="password"] {
+  width: 100%;
+  background: #0f1117;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 16px;
+  color: #e8eaf0;
+  font-family: 'Heebo', sans-serif;
+  outline: none;
+  transition: border-color .2s;
+  text-align: center;
+  letter-spacing: 4px;
+}
+input[type="password"]:focus {
+  border-color: #4f8ef7;
+}
+.btn {
+  width: 100%;
+  background: #4f8ef7;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 13px;
+  font-size: 15px;
+  font-weight: 500;
+  font-family: 'Heebo', sans-serif;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background .2s, transform .1s;
+}
+.btn:hover { background: #3a7ae0; }
+.btn:active { transform: scale(0.98); }
+.error {
+  display: none;
+  background: rgba(240,101,101,0.1);
+  border: 1px solid rgba(240,101,101,0.3);
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 13px;
+  color: #f09090;
+  margin-top: 12px;
+}
+.tools-list {
+  margin-top: 32px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 24px;
+  display: none;
+}
+.tools-list.visible { display: block; }
+.tools-title {
+  font-size: 11px;
+  color: #7a8099;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 14px;
+}
+.tool-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #0f1117;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  text-decoration: none;
+  color: #e8eaf0;
+  font-size: 13px;
+  transition: border-color .2s, background .2s;
+}
+.tool-link:hover {
+  border-color: #4f8ef7;
+  background: rgba(79,142,247,0.06);
+}
+.tool-icon { font-size: 18px; }
+.tool-name { font-weight: 500; }
+.tool-desc { font-size: 11px; color: #7a8099; margin-top: 2px; }
+.logout-btn {
+  margin-top: 16px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 12px;
+  color: #7a8099;
+  cursor: pointer;
+  font-family: 'Heebo', sans-serif;
+  transition: all .2s;
+}
+.logout-btn:hover { color: #e8eaf0; border-color: rgba(255,255,255,0.2); }
+</style>
+</head>
+<body>
+<div class="login-card">
+  <div class="icon">🔐</div>
+  <h1>הכלים שלי</h1>
+  <p class="sub">הכנס סיסמה לכניסה</p>
+
+  <div id="login-form">
+    <div class="field">
+      <label>סיסמה</label>
+      <input type="password" id="pwd" placeholder="••••••••" autofocus onkeydown="if(event.key==='Enter') login()" />
+    </div>
+    <button class="btn" onclick="login()">כניסה</button>
+    <div class="error" id="err">סיסמה שגויה, נסה שנית</div>
+  </div>
+
+  <div class="tools-list" id="tools">
+    <div class="tools-title">הכלים הזמינים</div>
+    <a href="/credit_dashboard.html" class="tool-link">
+      <span class="tool-icon">💳</span>
+      <div>
+        <div class="tool-name">דשבורד כרטיס אשראי</div>
+        <div class="tool-desc">דיינרס מסטרקארד 0999 · אפריל–יוני 2026</div>
+      </div>
+    </a>
+    <!-- כלים נוספים יתווספו כאן -->
+  </div>
+
+  <button class="logout-btn" id="logout-btn" style="display:none" onclick="logout()">התנתק</button>
+</div>
+
+<script>
+  const PASSWORD = 'Roiel1976';
+
+  function login() {
+    const val = document.getElementById('pwd').value;
+    if (val === PASSWORD) {
+      sessionStorage.setItem('auth', 'ok');
+      showTools();
+    } else {
+      document.getElementById('err').style.display = 'block';
+      document.getElementById('pwd').value = '';
+      document.getElementById('pwd').focus();
+    }
+  }
+
+  function showTools() {
+    document.getElementById('login-form').style.display = 'none';
+    document.getElementById('tools').classList.add('visible');
+    document.getElementById('logout-btn').style.display = 'block';
+    document.querySelector('.sub').textContent = 'ברוך הבא 👋';
+  }
+
+  function logout() {
+    sessionStorage.removeItem('auth');
+    location.reload();
+  }
+
+  if (sessionStorage.getItem('auth') === 'ok') {
+    showTools();
+  }
+</script>
+</body>
+</html>
