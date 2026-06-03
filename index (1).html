@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESHUV — כניסה</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Heebo',sans-serif;background:#f0f4f8;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.card{background:#fff;border-radius:20px;padding:40px;width:360px;box-shadow:0 4px 24px rgba(0,0,0,0.10);text-align:center}
+.logo{font-size:40px;margin-bottom:16px}
+h1{font-size:22px;font-weight:700;color:#1e293b;margin-bottom:4px}
+p{font-size:13px;color:#64748b;margin-bottom:28px}
+label{display:block;font-size:11px;color:#64748b;font-weight:500;text-align:right;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.4px}
+input{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:11px 14px;font-size:15px;font-family:'Heebo',sans-serif;text-align:center;letter-spacing:4px;outline:none;transition:border-color .15s;margin-bottom:14px}
+input:focus{border-color:#2563eb}
+.btn{width:100%;background:#2563eb;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:600;font-family:'Heebo',sans-serif;cursor:pointer;transition:background .15s}
+.btn:hover{background:#1d4ed8}
+.err{display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px;font-size:12px;color:#dc2626;margin-top:10px}
+.tools{display:none;margin-top:24px;border-top:1px solid #e2e8f0;padding-top:20px}
+.tool-link{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:8px;text-decoration:none;color:#1e293b;transition:all .15s}
+.tool-link:hover{border-color:#2563eb;background:#eff6ff}
+.tool-icon{font-size:22px}
+.tool-info strong{display:block;font-size:13px;font-weight:600}
+.tool-info span{font-size:11px;color:#64748b}
+.logout{margin-top:12px;background:none;border:1px solid #e2e8f0;border-radius:8px;padding:7px 16px;font-size:12px;color:#64748b;cursor:pointer;font-family:'Heebo',sans-serif}
+.logout:hover{color:#1e293b}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">🏘</div>
+  <h1>ESHUV</h1>
+  <p>מערכת ניהול שיווק</p>
+  <div id="login-form">
+    <div style="text-align:right">
+      <label>סיסמה</label>
+      <input type="password" id="pwd" placeholder="••••••••" autofocus onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <button class="btn" onclick="login()">כניסה</button>
+    <div class="err" id="err">סיסמה שגויה</div>
+  </div>
+  <div class="tools" id="tools">
+    <p style="margin-bottom:14px;font-weight:600;color:#1e293b">ברוך הבא 👋</p>
+    <a href="/agent.html" class="tool-link">
+      <div class="tool-icon">🤖</div>
+      <div class="tool-info"><strong>סוכן שיווק AI</strong><span>צ'אט חכם, שליחת WhatsApp, תחזיות</span></div>
+    </a>
+    <a href="/credit.html" class="tool-link">
+      <div class="tool-icon">💳</div>
+      <div class="tool-info"><strong>דשבורד כרטיס אשראי</strong><span>ניתוח הוצאות דיינרס 0999</span></div>
+    </a>
+    <button class="logout" onclick="logout()">התנתק</button>
+  </div>
+</div>
+<script>
+const PWD='Roiel1976';
+function login(){
+  if(document.getElementById('pwd').value===PWD){
+    sessionStorage.setItem('auth','ok');
+    document.getElementById('login-form').style.display='none';
+    document.getElementById('tools').style.display='block';
+  } else {
+    document.getElementById('err').style.display='block';
+    document.getElementById('pwd').value='';
+  }
+}
+function logout(){sessionStorage.removeItem('auth');location.reload();}
+if(sessionStorage.getItem('auth')==='ok'){
+  document.getElementById('login-form').style.display='none';
+  document.getElementById('tools').style.display='block';
+}
+</script>
+</body>
+</html>
