@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>סוכן שיווק — מרכז בקרה</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6fa;--white:#ffffff;--surface:#f9fafc;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --text:#1e293b;--muted:#64748b;--hint:#94a3b8;
+  --blue:#2563eb;--blue-l:#eff6ff;--blue-b:#bfdbfe;
+  --green:#16a34a;--green-l:#f0fdf4;--green-b:#bbf7d0;
+  --amber:#d97706;--amber-l:#fffbeb;--amber-b:#fde68a;
+  --red:#dc2626;--red-l:#fef2f2;--red-b:#fecaca;
+  --purple:#7c3aed;--purple-l:#f5f3ff;--purple-b:#ddd6fe;
+  --wa:#16a34a;--wa-l:#f0fdf4;
+  --r:10px;--r2:14px;
+  --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.06);
+  --shadow2:0 4px 16px rgba(0,0,0,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Heebo',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+
+/* LAYOUT */
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.sidebar{background:var(--white);border-left:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+.content{padding:28px 32px;max-width:1100px;width:100%}
+
+/* SIDEBAR */
+.logo{padding:22px 20px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.logo-icon{width:40px;height:40px;background:var(--green);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.logo-text h1{font-size:14px;font-weight:700;color:var(--text)}
+.logo-text p{font-size:11px;color:var(--muted)}
+.nav{padding:14px 12px;flex:1}
+.nav-section{font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:0.8px;padding:4px 8px 8px;margin-top:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r);cursor:pointer;color:var(--muted);font-size:13px;font-weight:500;margin-bottom:2px;transition:all .15s;border:none;background:none;width:100%;text-align:right}
+.nav-item:hover{background:var(--bg);color:var(--text)}
+.nav-item.active{background:var(--blue-l);color:var(--blue);font-weight:600}
+.nav-icon{font-size:16px;width:22px;text-align:center;flex-shrink:0}
+.nav-badge{margin-right:auto;background:var(--red);color:#fff;font-size:9px;padding:2px 7px;border-radius:20px;font-weight:700}
+.sidebar-footer{padding:14px 16px;border-top:1px solid var(--border)}
+.stat-row{display:flex;justify-content:space-between;padding:4px 0;font-size:12px}
+.stat-row span:first-child{color:var(--muted)}
+.stat-row span:last-child{font-weight:600;color:var(--text)}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:12px;flex-wrap:wrap}
+.page-title{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.5px}
+.page-sub{font-size:13px;color:var(--muted);margin-top:2px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* BUTTONS */
+.btn{padding:8px 18px;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;font-family:'Heebo',sans-serif;border:1px solid var(--border2);background:var(--white);color:var(--text);transition:all .15s;box-shadow:var(--shadow)}
+.btn:hover{background:var(--bg);border-color:var(--blue)}
+.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,0.25)}
+.btn-primary:hover{background:#1d4ed8;border-color:#1d4ed8}
+.btn-wa{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 8px rgba(22,163,74,0.25)}
+.btn-wa:hover{background:#15803d}
+.btn-red{background:var(--red);border-color:var(--red);color:#fff}
+.btn-red:hover{background:#b91c1c}
+.btn-sm{padding:5px 12px;font-size:12px;border-radius:8px;cursor:pointer;font-family:'Heebo',sans-serif;border:1px solid var(--border2);background:var(--white);color:var(--text);transition:all .15s}
+.btn-sm:hover{border-color:var(--blue);color:var(--blue)}
+.btn-sm.wa{border-color:var(--green-b);background:var(--green-l);color:var(--green)}
+.btn-sm.cal{border-color:var(--blue-b);background:var(--blue-l);color:var(--blue)}
+.btn-sm.red{border-color:var(--red-b);background:var(--red-l);color:var(--red)}
+
+/* CARD */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r2);padding:20px 22px;box-shadow:var(--shadow);margin-bottom:18px}
+.card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-title-icon{font-size:16px}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.metric{background:var(--white);border:1px solid var(--border);border-radius:var(--r2);padding:18px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.metric-accent{position:absolute;top:0;right:0;width:4px;height:100%;border-radius:0 var(--r2) var(--r2) 0}
+.metric-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.metric-val{font-size:28px;font-weight:700;line-height:1}
+.metric-sub{font-size:11px;color:var(--muted);margin-top:6px}
+
+/* STATUS BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.badge-marketing{background:var(--blue-l);color:var(--blue);border:1px solid var(--blue-b)}
+.badge-process{background:var(--amber-l);color:var(--amber);border:1px solid var(--amber-b)}
+.badge-active{background:var(--green-l);color:var(--green);border:1px solid var(--green-b)}
+.badge-blocked{background:var(--red-l);color:var(--red);border:1px solid var(--red-b)}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:var(--surface)}
+th{padding:10px 14px;text-align:right;color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:0.4px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg)}
+.phone-cell{font-family:'IBM Plex Mono',monospace;direction:ltr;text-align:left;color:var(--muted);font-size:12px}
+
+/* FILTERS */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+input[type=text],input[type=date],select,textarea{background:var(--white);border:1px solid var(--border2);border-radius:var(--r);padding:7px 12px;font-size:13px;color:var(--text);font-family:'Heebo',sans-serif;outline:none;transition:border-color .15s;box-shadow:var(--shadow)}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.08)}
+
+/* PASTE AREA */
+.paste-area{background:var(--surface);border:2px dashed var(--border2);border-radius:var(--r2);padding:28px;text-align:center;transition:all .2s;margin-bottom:16px}
+.paste-area.drag{border-color:var(--blue);background:var(--blue-l)}
+.paste-area p{color:var(--muted);font-size:13px;margin-top:8px}
+textarea#paste-input{width:100%;min-height:140px;font-family:'IBM Plex Mono',monospace;font-size:12px;resize:vertical;border-radius:var(--r);margin-top:12px;direction:ltr}
+
+/* FLOW */
+.flow-step{display:flex;gap:14px;margin-bottom:12px;align-items:flex-start}
+.flow-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;border:2px solid}
+.flow-num.s1{background:var(--blue-l);color:var(--blue);border-color:var(--blue)}
+.flow-num.s2{background:var(--amber-l);color:var(--amber);border-color:var(--amber)}
+.flow-num.s3{background:var(--purple-l);color:var(--purple);border-color:var(--purple)}
+.flow-body{flex:1}
+.flow-title{font-weight:600;font-size:13px;margin-bottom:2px}
+.flow-sub{font-size:12px;color:var(--muted)}
+.flow-arrow{text-align:center;color:var(--hint);font-size:18px;margin:2px 0 2px 46px}
+
+/* TEMPLATE */
+.tpl-card{border:1px solid var(--border);border-radius:var(--r2);padding:18px;margin-bottom:14px;background:var(--white);box-shadow:var(--shadow)}
+.tpl-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.tpl-name{font-weight:600;font-size:13px;display:flex;align-items:center;gap:8px}
+.tpl-id{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);background:var(--surface);padding:2px 8px;border-radius:6px}
+.tpl-field{margin-bottom:10px}
+.tpl-field label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:500}
+.tpl-field input,.tpl-field textarea{width:100%}
+
+/* SEND PANEL */
+.send-box{background:var(--green-l);border:1px solid var(--green-b);border-radius:var(--r2);padding:20px;margin-bottom:18px}
+.send-box-title{font-weight:700;color:var(--green);font-size:14px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.send-result{padding:10px 14px;border-radius:var(--r);font-size:13px;margin-top:12px;display:none}
+.send-result.ok{background:var(--green-l);border:1px solid var(--green-b);color:var(--green);display:block}
+.send-result.err{background:var(--red-l);border:1px solid var(--red-b);color:var(--red);display:block}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,0.45);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:var(--r2);padding:26px;width:520px;max-width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow2)}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.modal-hdr h2{font-size:16px;font-weight:700}
+.modal-close{cursor:pointer;color:var(--muted);font-size:20px;line-height:1;padding:2px 6px;border-radius:6px}
+.modal-close:hover{background:var(--bg)}
+.mfield{margin-bottom:14px}
+.mfield label{display:block;font-size:11px;color:var(--muted);font-weight:500;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.4px}
+.mfield input,.mfield select,.mfield textarea{width:100%}
+.mfield textarea{min-height:80px;resize:vertical}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--border)}
+
+/* PAGINATION */
+.pager{display:flex;gap:6px;justify-content:center;margin-top:16px;align-items:center}
+.pager-btn{padding:5px 12px;border-radius:var(--r);border:1px solid var(--border2);background:var(--white);color:var(--muted);cursor:pointer;font-size:12px;box-shadow:var(--shadow)}
+.pager-btn:hover{border-color:var(--blue);color:var(--blue)}
+.pager-btn.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.pager-info{font-size:12px;color:var(--muted)}
+
+/* PROGRESS */
+.prog-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:6px}
+.prog-fill{height:100%;border-radius:3px;transition:width .5s}
+
+/* LOG */
+.log-item{display:flex;gap:12px;padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px}
+.log-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.log-time{font-size:11px;color:var(--hint);font-family:monospace;white-space:nowrap}
+
+/* SPINNER */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* SECTION */
+.section{display:none}.section.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.section.active{animation:fade .2s ease}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px;color:var(--muted);font-size:13px}
+.empty-icon{font-size:36px;margin-bottom:10px}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* ALERT */
+.alert{padding:12px 16px;border-radius:var(--r);font-size:13px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start}
+.alert-warn{background:var(--amber-l);border:1px solid var(--amber-b);color:var(--amber)}
+.alert-info{background:var(--blue-l);border:1px solid var(--blue-b);color:var(--blue)}
+
+@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{display:none}.metrics{grid-template-columns:repeat(2,1fr)}.two-col{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">💬</div>
+    <div class="logo-text">
+      <h1>סוכן שיווק</h1>
+      <p>מרכז בקרה</p>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">ראשי</div>
+    <button class="nav-item active" onclick="go('dashboard')"><span class="nav-icon">📊</span>דשבורד</button>
+    <button class="nav-item" onclick="go('import')"><span class="nav-icon">📋</span>ייבוא לידים</button>
+    <div class="nav-section">סוכן</div>
+    <button class="nav-item" onclick="go('queue')"><span class="nav-icon">🎯</span>תור שליחה<span class="nav-badge" id="qbadge">0</span></button>
+    <button class="nav-item" onclick="go('send')"><span class="nav-icon">💬</span>שלח WhatsApp</button>
+    <button class="nav-item" onclick="go('flow')"><span class="nav-icon">⚙️</span>הגדרות פלואו</button>
+    <button class="nav-item" onclick="go('templates')"><span class="nav-icon">📝</span>תבניות הודעה</button>
+    <div class="nav-section">נתונים</div>
+    <button class="nav-item" onclick="go('leads')"><span class="nav-icon">👥</span>כל הלידים</button>
+    <button class="nav-item" onclick="go('councils')"><span class="nav-icon">🏛</span>לפי מועצה</button>
+    <button class="nav-item" onclick="go('log')"><span class="nav-icon">📋</span>יומן פעילות</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="stat-row"><span>סה"כ לידים</span><span id="sb-total">0</span></div>
+    <div class="stat-row"><span>עם טלפון</span><span id="sb-phone">0</span></div>
+    <div class="stat-row"><span>נשלחו היום</span><span id="sb-today" style="color:var(--green)">0</span></div>
+  </div>
+</aside>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- ── DASHBOARD ── -->
+<div class="section active" id="sec-dashboard">
+  <div class="topbar">
+    <div><div class="page-title">דשבורד</div><div class="page-sub" id="today-str"></div></div>
+    <div class="actions">
+      <button class="btn" onclick="exportCSV()">⬇ ייצא CSV</button>
+      <button class="btn btn-wa" onclick="go('queue')">🎯 תור שליחה</button>
+    </div>
+  </div>
+  <div class="metrics" id="metrics-grid"></div>
+  <div class="two-col">
+    <div class="card"><div class="card-title"><span class="card-title-icon">📈</span>התפלגות סטטוסים</div><div id="status-bars"></div></div>
+    <div class="card"><div class="card-title"><span class="card-title-icon">🏆</span>מועצות מובילות</div><div id="top-councils"></div></div>
+  </div>
+  <div class="card"><div class="card-title"><span class="card-title-icon">🔥</span>לידים לטיפול עכשיו</div><div id="hot-leads"></div></div>
+</div>
+
+<!-- ── IMPORT ── -->
+<div class="section" id="sec-import">
+  <div class="topbar">
+    <div><div class="page-title">ייבוא לידים</div><div class="page-sub">הדבק מאקסל או CSV</div></div>
+    <button class="btn btn-red" onclick="clearAllData()">🗑 מחק כל הנתונים</button>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="card-title-icon">📋</span>הדבקה מאקסל</div>
+    <div class="alert alert-info">
+      <span>ℹ</span>
+      <div>העתק תאים מאקסל (Ctrl+C) ולאחר מכן הדבק בתיבה למטה (Ctrl+V).<br>
+      עמודות נדרשות: <strong>מועצה / יישוב / איש קשר / טלפון / מייל / סטטוס</strong><br>
+      הסדר חייב להיות זהה. שורת כותרות מזוהה אוטומטית.</div>
+    </div>
+    <div class="tpl-field"><label style="font-size:11px;color:var(--muted);font-weight:500;display:block;margin-bottom:5px">הדבק כאן את הנתונים מאקסל</label>
+    <textarea id="paste-input" dir="ltr" placeholder="מועצה&#9;יישוב&#9;איש קשר&#9;טלפון&#9;מייל&#9;סטטוס&#10;אשכול&#9;אוהד&#9;רונן כהן&#9;0546668843&#9;email@test.com&#9;שיווק" style="width:100%;min-height:160px;font-family:monospace;font-size:12px;resize:vertical"></textarea></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn btn-primary" onclick="parseAndImport()">📥 ייבא נתונים</button>
+      <button class="btn" onclick="document.getElementById('paste-input').value=''">נקה</button>
+    </div>
+    <div id="import-result" style="margin-top:12px"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="card-title-icon">⚠️</span>אזור מחיקה</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px">מחיקת כל הנתונים מהמערכת — פעולה בלתי הפיכה.</p>
+    <button class="btn btn-red" onclick="clearAllData()">🗑 מחק את כל הלידים</button>
+  </div>
+</div>
+
+<!-- ── QUEUE ── -->
+<div class="section" id="sec-queue">
+  <div class="topbar">
+    <div><div class="page-title">תור שליחה</div><div class="page-sub">הסוכן בחר לידים לפנייה</div></div>
+    <button class="btn btn-wa" onclick="sendBatch()">💬 שלח לכולם (<span id="batch-n">0</span>)</button>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="card-title-icon">⚙️</span>סינון תור</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+      <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">מועצה</label><select id="q-council" onchange="buildQueue()"><option value="">הכל</option></select></div>
+      <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">סטטוס</label>
+        <select id="q-status" onchange="buildQueue()">
+          <option value="שיווק">שיווק (פנייה ראשונה)</option>
+          <option value="פולאפ1">פולאפ 1</option>
+          <option value="פולאפ2">פולאפ 2</option>
+          <option value="">הכל</option>
+        </select>
+      </div>
+      <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">מקסימום</label>
+        <select id="q-max"><option>10</option><option selected>25</option><option>50</option><option>100</option></select>
+      </div>
+      <button class="btn btn-primary" onclick="buildQueue()">🔄 בנה תור</button>
+    </div>
+  </div>
+  <div id="queue-list"></div>
+</div>
+
+<!-- ── SEND ── -->
+<div class="section" id="sec-send">
+  <div class="topbar"><div class="page-title">שליחת WhatsApp</div></div>
+  <div class="send-box">
+    <div class="send-box-title">💬 Mumble API — חיבור פעיל</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div class="tpl-field"><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">חיפוש ליד</label>
+        <input type="text" id="send-search" placeholder="שם / יישוב..." oninput="filterSendList()">
+      </div>
+      <div class="tpl-field"><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">בחר ליד</label>
+        <select id="send-sel" onchange="fillSendPhone()"><option value="">— בחר —</option></select>
+      </div>
+      <div class="tpl-field"><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">טלפון (בינלאומי)</label>
+        <input type="text" id="send-phone" placeholder="972501234567" dir="ltr">
+      </div>
+      <div class="tpl-field"><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Template ID</label>
+        <select id="send-tpl-sel" style="width:100%"></select>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-wa" onclick="doSend()" id="send-btn">💬 שלח הודעה</button>
+      <button class="btn" onclick="testConn()">🔌 בדוק חיבור</button>
+    </div>
+    <div class="send-result" id="send-result"></div>
+  </div>
+  <div class="card"><div class="card-title">היסטוריית שליחות</div><div id="send-hist"></div></div>
+</div>
+
+<!-- ── FLOW ── -->
+<div class="section" id="sec-flow">
+  <div class="topbar"><div class="page-title">הגדרות פלואו</div></div>
+  <div class="card">
+    <div class="card-title"><span class="card-title-icon">⚙️</span>זרימת עבודה אוטומטית</div>
+    <div class="flow-step">
+      <div class="flow-num s1">1</div>
+      <div class="flow-body">
+        <div class="flow-title">פנייה ראשונה — סטטוס "שיווק"</div>
+        <div class="flow-sub">שולח WhatsApp עם תבנית פנייה ראשונה. סטטוס עובר ל"בתהליך".</div>
+        <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span style="font-size:12px;color:var(--muted)">תבנית:</span>
+          <select id="flow-tpl1" style="font-size:12px"></select>
+        </div>
+      </div>
+    </div>
+    <div class="flow-arrow">↓ אם אין תגובה</div>
+    <div class="flow-step">
+      <div class="flow-num s2">2</div>
+      <div class="flow-body">
+        <div class="flow-title">פולאפ 1 — <span id="flow-days1-label">7</span> ימים ללא תגובה</div>
+        <div class="flow-sub">שולח תזכורת. סטטוס עובר ל"פולאפ1".</div>
+        <div style="margin-top:8px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)">
+            <span>ימי המתנה:</span>
+            <input type="number" id="flow-days1" value="7" min="1" max="30" style="width:60px;font-size:12px" oninput="document.getElementById('flow-days1-label').textContent=this.value">
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)">
+            <span>תבנית:</span><select id="flow-tpl2" style="font-size:12px"></select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flow-arrow">↓ אם אין תגובה</div>
+    <div class="flow-step">
+      <div class="flow-num s3">3</div>
+      <div class="flow-body">
+        <div class="flow-title">פולאפ 2 — <span id="flow-days2-label">7</span> ימים ללא תגובה</div>
+        <div class="flow-sub">שולח הודעה אחרונה. אם אין תגובה — סטטוס עובר ל"חסום".</div>
+        <div style="margin-top:8px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)">
+            <span>ימי המתנה:</span>
+            <input type="number" id="flow-days2" value="7" min="1" max="30" style="width:60px;font-size:12px" oninput="document.getElementById('flow-days2-label').textContent=this.value">
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)">
+            <span>תבנית:</span><select id="flow-tpl3" style="font-size:12px"></select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">
+      <div class="flow-num" style="background:var(--red-l);color:var(--red);border-color:var(--red)">✕</div>
+      <div class="flow-body">
+        <div class="flow-title">חסום — אין תגובה לאחר כל הניסיונות</div>
+        <div class="flow-sub">הליד עובר לסטטוס "חסום". אפשר לשחרר ידנית בעתיד.</div>
+      </div>
+    </div>
+    <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border);display:flex;gap:8px">
+      <button class="btn btn-primary" onclick="saveFlow()">💾 שמור הגדרות</button>
+      <button class="btn btn-wa" onclick="runFlowCheck()">▶ הרץ בדיקת פלואו עכשיו</button>
+    </div>
+    <div id="flow-result" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="card-title-icon">📊</span>סטטוסים — הסבר</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="padding:14px;border:1px solid var(--blue-b);border-radius:var(--r);background:var(--blue-l)">
+        <div style="font-weight:600;color:var(--blue);margin-bottom:4px">🎯 שיווק</div>
+        <div style="font-size:12px;color:var(--muted)">ליד חדש — ממתין לפנייה ראשונה</div>
+      </div>
+      <div style="padding:14px;border:1px solid var(--amber-b);border-radius:var(--r);background:var(--amber-l)">
+        <div style="font-weight:600;color:var(--amber);margin-bottom:4px">🔄 בתהליך</div>
+        <div style="font-size:12px;color:var(--muted)">נשלחה פנייה — ממתין לתגובה</div>
+      </div>
+      <div style="padding:14px;border:1px solid var(--green-b);border-radius:var(--r);background:var(--green-l)">
+        <div style="font-weight:600;color:var(--green);margin-bottom:4px">✅ פעיל</div>
+        <div style="font-size:12px;color:var(--muted)">ענה / בפגישה / לקוח פעיל</div>
+      </div>
+      <div style="padding:14px;border:1px solid var(--red-b);border-radius:var(--r);background:var(--red-l)">
+        <div style="font-weight:600;color:var(--red);margin-bottom:4px">🚫 חסום</div>
+        <div style="font-size:12px;color:var(--muted)">לא הגיב אחרי כל הניסיונות</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TEMPLATES ── -->
+<div class="section" id="sec-templates">
+  <div class="topbar">
+    <div><div class="page-title">תבניות הודעה</div><div class="page-sub">3 תבניות לפלואו — פנייה ראשונה + 2 פולאפים</div></div>
+    <button class="btn btn-primary" onclick="addTemplate()">+ הוסף תבנית</button>
+  </div>
+  <div id="tpl-list"></div>
+</div>
+
+<!-- ── LEADS ── -->
+<div class="section" id="sec-leads">
+  <div class="topbar">
+    <div class="page-title">כל הלידים</div>
+    <div class="actions">
+      <button class="btn" onclick="exportCSV()">⬇ ייצא CSV</button>
+    </div>
+  </div>
+  <div class="filters">
+    <input type="text" id="l-search" placeholder="🔍 חיפוש שם / יישוב..." oninput="filterLeads()" style="min-width:200px">
+    <select id="l-council" onchange="filterLeads()"><option value="">כל המועצות</option></select>
+    <select id="l-status" onchange="filterLeads()">
+      <option value="">כל הסטטוסים</option>
+      <option>שיווק</option><option>בתהליך</option><option>פעיל</option><option>חסום</option>
+    </select>
+    <span id="l-count" style="font-size:12px;color:var(--muted)"></span>
+  </div>
+  <div class="tbl-wrap">
+    <table><thead><tr>
+      <th>מזהה</th><th>שם</th><th>יישוב</th><th>מועצה</th>
+      <th>טלפון</th><th>סטטוס</th><th>פניות</th><th>תאריך אחרון</th><th>פעולות</th>
+    </tr></thead><tbody id="l-tbody"></tbody></table>
+  </div>
+  <div class="pager" id="l-pager"></div>
+</div>
+
+<!-- ── COUNCILS ── -->
+<div class="section" id="sec-councils">
+  <div class="topbar"><div class="page-title">סיכום לפי מועצה</div></div>
+  <div class="tbl-wrap">
+    <table><thead><tr>
+      <th>מועצה</th><th>סה"כ</th><th>שיווק</th><th>בתהליך</th><th>פעיל</th><th>חסום</th><th>% המרה</th>
+    </tr></thead><tbody id="c-tbody"></tbody></table>
+  </div>
+</div>
+
+<!-- ── LOG ── -->
+<div class="section" id="sec-log">
+  <div class="topbar">
+    <div class="page-title">יומן פעילות</div>
+    <button class="btn" onclick="clearLog()">🗑 נקה</button>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div id="log-list"><div class="empty"><div class="empty-icon">📋</div>אין פעילות עדיין</div></div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-hdr"><h2 id="modal-title"></h2><span class="modal-close" onclick="closeModal()">✕</span></div>
+    <div id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<script>
+// ─── CONSTANTS ───
+const MUMBLE_KEY='775a16f8b99029617d4f096ca030d850bb09c344-058a-44e0-97ca-7ed2adc598c5';
+const MUMBLE_URL='https://app.mumble.co.il/mumbleapi/send-template';
+const DEFAULT_TPL='8d087b49-0097-4242-a204-b3b1889f0463';
+const STATUSES=['שיווק','בתהליך','פעיל','חסום'];
+const STATUS_BADGE={'שיווק':'badge-marketing','בתהליך':'badge-process','פעיל':'badge-active','חסום':'badge-blocked'};
+const STATUS_COLOR={'שיווק':'#2563eb','בתהליך':'#d97706','פעיל':'#16a34a','חסום':'#dc2626'};
+
+// ─── STATE ───
+let LEADS=[], sendHistory=[], actLog=[], TEMPLATES=[], flowCfg={days1:7,days2:7,tpl1:'',tpl2:'',tpl3:''};
+let leadsPage=1, filteredLeads=[], PER=50;
+
+function load(){
+  try{LEADS=JSON.parse(localStorage.getItem('leads')||'[]');}catch(e){LEADS=[];}
+  try{sendHistory=JSON.parse(localStorage.getItem('sh')||'[]');}catch(e){sendHistory=[];}
+  try{actLog=JSON.parse(localStorage.getItem('al')||'[]');}catch(e){actLog=[];}
+  try{TEMPLATES=JSON.parse(localStorage.getItem('tpls')||'null')||defaultTemplates();}catch(e){TEMPLATES=defaultTemplates();}
+  try{flowCfg=JSON.parse(localStorage.getItem('flow')||'null')||{days1:7,days2:7,tpl1:'',tpl2:'',tpl3:''};}catch(e){flowCfg={days1:7,days2:7,tpl1:'',tpl2:'',tpl3:''};}
+}
+function saveL(){localStorage.setItem('leads',JSON.stringify(LEADS));}
+function saveSH(){localStorage.setItem('sh',JSON.stringify(sendHistory));}
+function saveAL(){localStorage.setItem('al',JSON.stringify(actLog));}
+function saveTPLS(){localStorage.setItem('tpls',JSON.stringify(TEMPLATES));}
+function saveFlow(){localStorage.setItem('flow',JSON.stringify(flowCfg));showMsg('flow-result','✅ הגדרות נשמרו','ok');}
+
+function defaultTemplates(){
+  return[
+    {id:'tpl1',name:'פנייה ראשונה',mumble_id:DEFAULT_TPL,p1:'שלום {{שם}},',p2:'אנחנו שמחים להציג את השירות שלנו ליישוב {{יישוב}}.',p3:'נשמח לקבוע פגישה קצרה להציג את הפתרון.',img:''},
+    {id:'tpl2',name:'פולאפ 1',mumble_id:DEFAULT_TPL,p1:'שלום {{שם}}, פנינו אליך לפני מספר ימים.',p2:'האם קיבלת את ההודעה שלנו?',p3:'נשמח לשוחח ולהציג את הפתרון ליישוב {{יישוב}}.',img:''},
+    {id:'tpl3',name:'פולאפ 2',mumble_id:DEFAULT_TPL,p1:'שלום {{שם}}, זה הניסיון האחרון שלנו.',p2:'אם תרצה לשמוע על הפתרון ליישוב {{יישוב}} — נשמח מאוד.',p3:'מחכים לשמוע ממך! 🙏',img:''},
+  ];
+}
+
+function todayISO(){return new Date().toISOString().split('T')[0];}
+function fmt(n){return(n||0).toLocaleString('he-IL');}
+function fmtP(p){if(!p)return'';p=p.replace(/\D/g,'');if(p.startsWith('0'))return'972'+p.slice(1);return p;}
+function ini(n){return n?n.split(' ').map(w=>w[0]).join('').slice(0,2):'?';}
+function log(txt,col){actLog.unshift({txt,col:col||'#2563eb',t:new Date().toLocaleTimeString('he-IL')});if(actLog.length>500)actLog=actLog.slice(0,500);saveAL();}
+function showMsg(id,msg,type){const el=document.getElementById(id);if(!el)return;el.className='send-result '+(type==='ok'?'ok':'err');el.textContent=msg;setTimeout(()=>el.className='send-result',4000);}
+
+// ─── NAV ───
+function go(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  const btns=document.querySelectorAll('.nav-item');
+  const map={dashboard:0,import:1,queue:2,send:3,flow:4,templates:5,leads:6,councils:7,log:8};
+  if(map[id]!==undefined)btns[map[id]].classList.add('active');
+  if(id==='leads'){filteredLeads=[...LEADS];renderLeads();}
+  if(id==='councils')renderCouncils();
+  if(id==='queue')buildQueue();
+  if(id==='send')renderSendSection();
+  if(id==='log')renderLog();
+  if(id==='templates')renderTemplates();
+  if(id==='flow')renderFlowSelects();
+}
+
+// ─── IMPORT ───
+function parseAndImport(){
+  const raw=document.getElementById('paste-input').value.trim();
+  if(!raw){showMsg('import-result','הדבק נתונים תחילה','err');return;}
+  const lines=raw.split('\n').filter(l=>l.trim());
+  const COL_HEADERS=['מועצה','יישוב','איש','טלפון','מייל','סטאטוס','סטטוס'];
+  let startRow=0;
+  const first=lines[0].split('\t').map(c=>c.trim().toLowerCase());
+  if(first.some(c=>c.includes('מועצה')||c.includes('council')||c.includes('ישוב')))startRow=1;
+  let added=0,skip=0;
+  for(let i=startRow;i<lines.length;i++){
+    const cols=lines[i].split('\t').map(c=>c.trim());
+    if(cols.length<3){skip++;continue;}
+    const council=cols[0]||'',village=cols[1]||'',name=cols[2]||'',phone=cols[3]||'',email=cols[4]||'';
+    let status=cols[5]||'שיווק';
+    if(!STATUSES.includes(status))status='שיווק';
+    if(!name&&!phone){skip++;continue;}
+    const id='C'+String(LEADS.length+added+1).padStart(4,'0');
+    LEADS.push({id,council,village,name,phone,email,status,priority:'בינונית',last_contact:'',meeting_date:'',meeting_link:'',contact_count:'0',notes:''});
+    added++;
+  }
+  saveL();updateSidebar();renderDashboard();
+  const res=document.getElementById('import-result');
+  res.innerHTML=`<div class="alert alert-info"><span>✅</span><div>יובאו <strong>${added}</strong> לידים. דולגו: ${skip}.</div></div>`;
+  document.getElementById('paste-input').value='';
+  log('📥 יובאו '+added+' לידים','#16a34a');
+}
+
+function clearAllData(){
+  if(!confirm('למחוק את כל '+LEADS.length+' הלידים? פעולה בלתי הפיכה!'))return;
+  LEADS=[];saveL();sendHistory=[];saveSH();actLog=[];saveAL();
+  updateSidebar();renderDashboard();
+  alert('✅ כל הנתונים נמחקו.');
+  log('🗑 כל הנתונים נמחקו','#dc2626');
+}
+
+// ─── DASHBOARD ───
+function getStats(){
+  const s={total:LEADS.length,phone:0,byS:{שיווק:0,בתהליך:0,פעיל:0,חסום:0},byC:{}};
+  LEADS.forEach(l=>{if(l.phone)s.phone++;s.byS[l.status]=(s.byS[l.status]||0)+1;s.byC[l.council]=(s.byC[l.council]||0)+1;});
+  s.today=sendHistory.filter(h=>h.date===todayISO()).length;
+  return s;
+}
+function updateSidebar(){
+  const s=getStats();
+  document.getElementById('sb-total').textContent=fmt(s.total);
+  document.getElementById('sb-phone').textContent=fmt(s.phone);
+  document.getElementById('sb-today').textContent=fmt(s.today);
+  document.getElementById('qbadge').textContent=LEADS.filter(l=>l.status==='שיווק'&&l.phone).length;
+}
+function renderDashboard(){
+  updateSidebar();
+  document.getElementById('today-str').textContent=new Date().toLocaleDateString('he-IL',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const s=getStats();
+  const metrics=[
+    {label:'סה"כ לידים',val:s.total,color:'#2563eb',sub:'אנשי קשר'},
+    {label:'שיווק',val:s.byS['שיווק']||0,color:'#2563eb',sub:'לפנייה ראשונה'},
+    {label:'בתהליך',val:s.byS['בתהליך']||0,color:'#d97706',sub:'ממתין תגובה'},
+    {label:'פעיל',val:s.byS['פעיל']||0,color:'#16a34a',sub:'לקוחות פעילים'},
+  ];
+  document.getElementById('metrics-grid').innerHTML=metrics.map(m=>`
+    <div class="metric">
+      <div class="metric-accent" style="background:${m.color}"></div>
+      <div class="metric-label">${m.label}</div>
+      <div class="metric-val" style="color:${m.color}">${fmt(m.val)}</div>
+      <div class="metric-sub">${m.sub}</div>
+    </div>`).join('');
+  const total=s.total||1;
+  document.getElementById('status-bars').innerHTML=STATUSES.map(st=>{
+    const c=s.byS[st]||0,pct=(c/total*100).toFixed(1);
+    return`<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+        <span><span class="badge ${STATUS_BADGE[st]}">${st}</span></span>
+        <span style="color:var(--muted)">${c} (${pct}%)</span>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${STATUS_COLOR[st]}"></div></div>
+    </div>`;
+  }).join('');
+  const topC=Object.entries(s.byC).sort((a,b)=>b[1]-a[1]).slice(0,8),maxC=topC[0]?topC[0][1]:1;
+  document.getElementById('top-councils').innerHTML=topC.length?topC.map(([c,n])=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px">
+      <span style="width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0;font-weight:500">${c}</span>
+      <div style="flex:1;height:6px;background:var(--border);border-radius:3px"><div style="width:${(n/maxC*100).toFixed(0)}%;height:100%;background:var(--blue);border-radius:3px"></div></div>
+      <span style="color:var(--muted);width:28px;text-align:left">${n}</span>
+    </div>`).join(''):'<div class="empty">אין נתונים</div>';
+  const hot=LEADS.filter(l=>l.phone&&(l.status==='שיווק'||l.status==='בתהליך')).slice(0,5);
+  document.getElementById('hot-leads').innerHTML=hot.length?hot.map(l=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="width:36px;height:36px;border-radius:10px;background:var(--blue-l);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--blue);flex-shrink:0">${ini(l.name)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:13px">${l.name}</div>
+        <div style="font-size:11px;color:var(--muted)">${l.village} · ${l.council}</div>
+      </div>
+      <span class="badge ${STATUS_BADGE[l.status]}">${l.status}</span>
+      <div style="display:flex;gap:6px">
+        ${l.phone?`<button class="btn-sm wa" onclick="quickSend('${l.id}')">💬</button>`:''}
+        <button class="btn-sm" onclick="editLead('${l.id}')">✏</button>
+      </div>
+    </div>`).join(''):
+    '<div class="empty"><div class="empty-icon">🎉</div>אין לידים ממתינים</div>';
+}
+
+// ─── QUEUE ───
+function buildQueue(){
+  const cf=document.getElementById('q-council')?.value||'',sf=document.getElementById('q-status')?.value||'שיווק',mx=parseInt(document.getElementById('q-max')?.value||'25');
+  let pool=LEADS.filter(l=>l.phone);
+  if(cf)pool=pool.filter(l=>l.council===cf);
+  if(sf)pool=pool.filter(l=>l.status===sf);
+  pool=pool.slice(0,mx);
+  document.getElementById('batch-n').textContent=pool.length;
+  document.getElementById('queue-list').innerHTML=pool.length?pool.map(l=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--white);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;box-shadow:var(--shadow)" id="qi-${l.id}">
+      <div style="width:38px;height:38px;border-radius:10px;background:var(--blue-l);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--blue);flex-shrink:0">${ini(l.name)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:13px">${l.name}</div>
+        <div style="font-size:11px;color:var(--muted)">${l.village} · ${l.council}</div>
+        <div style="font-family:monospace;font-size:11px;color:var(--muted)">${l.phone}</div>
+      </div>
+      <span class="badge ${STATUS_BADGE[l.status]}">${l.status}</span>
+      <div style="display:flex;gap:6px">
+        <button class="btn-sm wa" onclick="sendToLead('${l.id}')">💬 שלח</button>
+        <button class="btn-sm cal" onclick="schedMeeting('${l.id}')">📅</button>
+        <button class="btn-sm" onclick="editLead('${l.id}')">✏</button>
+      </div>
+    </div>`).join(''):
+    '<div class="empty"><div class="empty-icon">✅</div>אין לידים בתור הנוכחי</div>';
+}
+
+async function sendBatch(){
+  const cf=document.getElementById('q-council')?.value||'',sf=document.getElementById('q-status')?.value||'שיווק',mx=parseInt(document.getElementById('q-max')?.value||'25');
+  let pool=LEADS.filter(l=>l.phone);
+  if(cf)pool=pool.filter(l=>l.council===cf);
+  if(sf)pool=pool.filter(l=>l.status===sf);
+  pool=pool.slice(0,mx);
+  if(!pool.length){alert('אין לידים בתור');return;}
+  if(!confirm('לשלוח WhatsApp ל-'+pool.length+' לידים?'))return;
+  const tplId=getTplForStatus(sf)||DEFAULT_TPL;
+  let ok=0,fail=0;
+  for(const l of pool){
+    const phone=fmtP(l.phone);if(!phone)continue;
+    try{
+      const r=await fetch(MUMBLE_URL,{method:'POST',headers:{'Mumble-Api-Key':MUMBLE_KEY,'Content-Type':'application/json'},body:JSON.stringify({template_id:tplId,customer_phone:phone})});
+      const d=await r.json();
+      if(r.ok||d.success!==false){updStatus(l.id,sf==='שיווק'?'בתהליך':l.status);recSend(l,phone,true);ok++;const el=document.getElementById('qi-'+l.id);if(el)el.style.opacity='0.4';log('נשלח ל-'+l.name,'#16a34a');}
+      else{fail++;log('נכשל: '+l.name,'#dc2626');}
+    }catch(e){fail++;log('שגיאה: '+e.message,'#dc2626');}
+    await new Promise(r=>setTimeout(r,800));
+  }
+  saveL();renderDashboard();alert('נשלחו: '+ok+'\nנכשלו: '+fail);
+}
+
+function getTplForStatus(st){
+  if(st==='שיווק')return flowCfg.tpl1||DEFAULT_TPL;
+  if(st==='פולאפ1')return flowCfg.tpl2||DEFAULT_TPL;
+  if(st==='פולאפ2')return flowCfg.tpl3||DEFAULT_TPL;
+  return DEFAULT_TPL;
+}
+
+async function sendToLead(id){
+  const l=LEADS.find(x=>x.id===id);if(!l||!l.phone){alert('אין טלפון');return;}
+  const phone=fmtP(l.phone),tplId=getTplForStatus(l.status)||DEFAULT_TPL;
+  const btn=document.querySelector('#qi-'+id+' .btn-sm.wa');
+  if(btn){btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;}
+  try{
+    const r=await fetch(MUMBLE_URL,{method:'POST',headers:{'Mumble-Api-Key':MUMBLE_KEY,'Content-Type':'application/json'},body:JSON.stringify({template_id:tplId,customer_phone:phone})});
+    const d=await r.json();
+    if(r.ok||d.success!==false){updStatus(id,'בתהליך');recSend(l,phone,true);if(btn)btn.innerHTML='✅ נשלח';log('נשלח ל-'+l.name,'#16a34a');}
+    else{if(btn)btn.innerHTML='❌';log('נכשל: '+l.name,'#dc2626');}
+  }catch(e){if(btn)btn.innerHTML='❌';log('שגיאה: '+e.message,'#dc2626');}
+  saveL();
+}
+
+// ─── SEND ───
+function renderSendSection(){
+  fillSendList(LEADS.filter(l=>l.phone));
+  const sel=document.getElementById('send-tpl-sel');
+  sel.innerHTML=TEMPLATES.map(t=>`<option value="${t.mumble_id}">${t.name}</option>`).join('');
+  renderSendHist();
+}
+function fillSendList(pool){
+  const sel=document.getElementById('send-sel');
+  sel.innerHTML='<option value="">— בחר ליד —</option>'+pool.slice(0,300).map(l=>`<option value="${l.id}">${l.name} — ${l.village} (${l.phone})</option>`).join('');
+}
+function filterSendList(){const q=document.getElementById('send-search').value.toLowerCase();fillSendList(LEADS.filter(l=>l.phone&&(l.name.toLowerCase().includes(q)||l.village.toLowerCase().includes(q)||l.council.toLowerCase().includes(q))));}
+function fillSendPhone(){const l=LEADS.find(x=>x.id===document.getElementById('send-sel').value);if(l)document.getElementById('send-phone').value=fmtP(l.phone);}
+async function doSend(){
+  const btn=document.getElementById('send-btn'),res=document.getElementById('send-result');
+  const phone=document.getElementById('send-phone').value.trim(),tpl=document.getElementById('send-tpl-sel').value,lid=document.getElementById('send-sel').value;
+  if(!phone){res.className='send-result err';res.textContent='הכנס מספר טלפון';return;}
+  btn.innerHTML='<span class="spinner"></span>שולח...';btn.disabled=true;res.className='send-result';
+  try{
+    const r=await fetch(MUMBLE_URL,{method:'POST',headers:{'Mumble-Api-Key':MUMBLE_KEY,'Content-Type':'application/json'},body:JSON.stringify({template_id:tpl||DEFAULT_TPL,customer_phone:phone})});
+    const d=await r.json();
+    if(r.ok||d.success!==false){
+      res.className='send-result ok';res.textContent='✅ נשלח בהצלחה! '+JSON.stringify(d);
+      if(lid){updStatus(lid,'בתהליך');saveL();}
+      const l=LEADS.find(x=>x.id===lid)||{name:'ידני',village:''};
+      recSend(l,phone,true);log('נשלח ל-'+phone,'#16a34a');renderSendHist();
+    }else{res.className='send-result err';res.textContent='❌ '+JSON.stringify(d);}
+  }catch(e){res.className='send-result err';res.textContent='❌ שגיאת רשת: '+e.message+' (אם פותח מקובץ מקומי — העלה ל-Vercel)';}
+  btn.innerHTML='💬 שלח הודעה';btn.disabled=false;
+}
+async function testConn(){
+  try{const r=await fetch(MUMBLE_URL,{method:'POST',headers:{'Mumble-Api-Key':MUMBLE_KEY,'Content-Type':'application/json'},body:JSON.stringify({template_id:DEFAULT_TPL,customer_phone:'972500000000'})});const d=await r.json();alert('Mumble:\n'+JSON.stringify(d,null,2));}
+  catch(e){alert('שגיאת רשת: '+e.message);}
+}
+function recSend(l,phone,ok){sendHistory.unshift({id:l.id,name:l.name||'',village:l.village||'',phone,ok,date:todayISO(),time:new Date().toLocaleTimeString('he-IL')});if(sendHistory.length>500)sendHistory=sendHistory.slice(0,500);saveSH();}
+function renderSendHist(){
+  const el=document.getElementById('send-hist');
+  el.innerHTML=sendHistory.slice(0,30).map(h=>`
+    <div style="display:flex;gap:12px;align-items:center;padding:9px 14px;border-bottom:1px solid var(--border);font-size:12px">
+      <span>${h.ok?'✅':'❌'}</span>
+      <span style="flex:1;font-weight:500">${h.name}</span>
+      <span style="color:var(--muted)">${h.village}</span>
+      <span style="font-family:monospace;direction:ltr;color:var(--muted)">${h.phone}</span>
+      <span style="color:var(--hint);font-size:10px">${h.date} ${h.time}</span>
+    </div>`).join('')||'<div class="empty">אין היסטוריה עדיין</div>';
+}
+
+// ─── FLOW CHECK ───
+function runFlowCheck(){
+  const days1=parseInt(document.getElementById('flow-days1').value)||7;
+  const days2=parseInt(document.getElementById('flow-days2').value)||7;
+  const now=new Date();
+  let cnt1=0,cnt2=0;
+  LEADS.forEach(l=>{
+    if(!l.last_contact)return;
+    const d=Math.floor((now-new Date(l.last_contact))/86400000);
+    if(l.status==='בתהליך'&&d>=days1){l.status='פולאפ1';cnt1++;}
+    else if(l.status==='פולאפ1'&&d>=days2){l.status='פולאפ2';cnt2++;}
+    else if(l.status==='פולאפ2'&&d>=days2){l.status='חסום';}
+  });
+  saveL();renderDashboard();
+  showMsg('flow-result',`✅ עודכנו: ${cnt1} לפולאפ1, ${cnt2} לפולאפ2`,'ok');
+  log('הרצת פלואו — '+cnt1+' פולאפ1, '+cnt2+' פולאפ2','#7c3aed');
+}
+function renderFlowSelects(){
+  ['flow-tpl1','flow-tpl2','flow-tpl3'].forEach((id,i)=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.innerHTML=TEMPLATES.map(t=>`<option value="${t.mumble_id}" ${(flowCfg['tpl'+(i+1)]===t.mumble_id)?'selected':''}>${t.name}</option>`).join('');
+  });
+  document.getElementById('flow-days1').value=flowCfg.days1||7;
+  document.getElementById('flow-days2').value=flowCfg.days2||7;
+}
+function saveFlow(){
+  flowCfg={
+    days1:parseInt(document.getElementById('flow-days1').value)||7,
+    days2:parseInt(document.getElementById('flow-days2').value)||7,
+    tpl1:document.getElementById('flow-tpl1').value,
+    tpl2:document.getElementById('flow-tpl2').value,
+    tpl3:document.getElementById('flow-tpl3').value,
+  };
+  localStorage.setItem('flow',JSON.stringify(flowCfg));
+  showMsg('flow-result','✅ הגדרות נשמרו','ok');
+}
+
+// ─── TEMPLATES ───
+function renderTemplates(){
+  document.getElementById('tpl-list').innerHTML=TEMPLATES.map((t,i)=>`
+    <div class="tpl-card">
+      <div class="tpl-header">
+        <div class="tpl-name">
+          <span>${i===0?'1️⃣':i===1?'2️⃣':'3️⃣'}</span>
+          <input value="${t.name}" onchange="TEMPLATES[${i}].name=this.value;saveTPLS()" style="font-weight:600;font-size:13px;border:none;background:transparent;outline:none;font-family:inherit;color:var(--text)">
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:11px;color:var(--muted)">Mumble Template ID:</span>
+          <input value="${t.mumble_id}" dir="ltr" onchange="TEMPLATES[${i}].mumble_id=this.value;saveTPLS()" style="font-family:monospace;font-size:11px;width:280px">
+        </div>
+      </div>
+      <div class="tpl-field"><label>פסקה 1</label><textarea onchange="TEMPLATES[${i}].p1=this.value;saveTPLS()" rows="2">${t.p1}</textarea></div>
+      <div class="tpl-field"><label>פסקה 2</label><textarea onchange="TEMPLATES[${i}].p2=this.value;saveTPLS()" rows="2">${t.p2}</textarea></div>
+      <div class="tpl-field"><label>פסקה 3</label><textarea onchange="TEMPLATES[${i}].p3=this.value;saveTPLS()" rows="2">${t.p3}</textarea></div>
+      <div class="tpl-field"><label>קישור תמונה (אופציונלי)</label><input value="${t.img||''}" placeholder="https://..." dir="ltr" onchange="TEMPLATES[${i}].img=this.value;saveTPLS()"></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px">משתנים זמינים: {{שם}} {{יישוב}} {{מועצה}}</div>
+    </div>`).join('');
+}
+function addTemplate(){
+  TEMPLATES.push({id:'tpl'+Date.now(),name:'תבנית חדשה',mumble_id:DEFAULT_TPL,p1:'',p2:'',p3:'',img:''});
+  saveTPLS();renderTemplates();
+}
+
+// ─── LEADS TABLE ───
+function filterLeads(){
+  leadsPage=1;
+  const q=(document.getElementById('l-search')?.value||'').toLowerCase();
+  const fc=document.getElementById('l-council')?.value||'',fs=document.getElementById('l-status')?.value||'';
+  filteredLeads=LEADS.filter(l=>{
+    if(fc&&l.council!==fc)return false;
+    if(fs&&l.status!==fs)return false;
+    if(q&&!l.name.toLowerCase().includes(q)&&!l.village.toLowerCase().includes(q)&&!l.council.toLowerCase().includes(q)&&!l.phone.includes(q))return false;
+    return true;
+  });
+  renderLeads();
+}
+function renderLeads(){
+  document.getElementById('l-count').textContent=filteredLeads.length+' תוצאות';
+  const page=filteredLeads.slice((leadsPage-1)*PER,leadsPage*PER);
+  document.getElementById('l-tbody').innerHTML=page.length?page.map(l=>`
+    <tr>
+      <td style="color:var(--hint);font-size:10px;font-family:monospace">${l.id}</td>
+      <td><span style="font-weight:600">${l.name}</span></td>
+      <td>${l.village}</td>
+      <td style="color:var(--muted)">${l.council}</td>
+      <td class="phone-cell">${l.phone||'—'}</td>
+      <td><span class="badge ${STATUS_BADGE[l.status]||'badge-marketing'}">${l.status}</span></td>
+      <td style="text-align:center;color:var(--muted)">${l.contact_count||0}</td>
+      <td style="font-size:11px;color:var(--muted)">${l.last_contact||'—'}</td>
+      <td><div style="display:flex;gap:4px">
+        ${l.phone?`<button class="btn-sm wa" onclick="quickSend('${l.id}')">💬</button>`:''}
+        <button class="btn-sm" onclick="editLead('${l.id}')">✏</button>
+      </div></td>
+    </tr>`).join(''):'<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--muted)">אין תוצאות</td></tr>';
+  const pages=Math.ceil(filteredLeads.length/PER);
+  let pg='';
+  if(leadsPage>1)pg+=`<button class="pager-btn" onclick="goP(${leadsPage-1})">→</button>`;
+  for(let i=Math.max(1,leadsPage-2);i<=Math.min(pages,leadsPage+2);i++)pg+=`<button class="pager-btn ${i===leadsPage?'active':''}" onclick="goP(${i})">${i}</button>`;
+  if(leadsPage<pages)pg+=`<button class="pager-btn" onclick="goP(${leadsPage+1})">←</button>`;
+  if(pages>1)pg+=`<span class="pager-info">${leadsPage}/${pages}</span>`;
+  document.getElementById('l-pager').innerHTML=pg;
+}
+function goP(p){leadsPage=p;renderLeads();window.scrollTo(0,0);}
+
+function renderCouncils(){
+  const m={};
+  LEADS.forEach(l=>{if(!m[l.council])m[l.council]={t:0,s:{שיווק:0,בתהליך:0,פעיל:0,חסום:0}};m[l.council].t++;m[l.council].s[l.status]=(m[l.council].s[l.status]||0)+1;});
+  document.getElementById('c-tbody').innerHTML=Object.entries(m).sort((a,b)=>b[1].t-a[1].t).map(([c,d])=>{
+    const conv=((d.s['פעיל']||0))/d.t*100;
+    return`<tr><td style="font-weight:600">${c}</td><td style="text-align:center">${d.t}</td><td style="text-align:center;color:var(--blue)">${d.s['שיווק']||0}</td><td style="text-align:center;color:var(--amber)">${d.s['בתהליך']||0}</td><td style="text-align:center;color:var(--green);font-weight:600">${d.s['פעיל']||0}</td><td style="text-align:center;color:var(--red)">${d.s['חסום']||0}</td><td style="text-align:center;color:${conv>10?'var(--green)':'var(--muted)'}">${conv.toFixed(1)}%</td></tr>`;
+  }).join('');
+}
+
+function renderLog(){
+  document.getElementById('log-list').innerHTML=actLog.length?actLog.map(l=>`
+    <div class="log-item">
+      <div class="log-dot" style="background:${l.col}"></div>
+      <div style="flex:1;font-size:13px">${l.txt}</div>
+      <div class="log-time">${l.t}</div>
+    </div>`).join(''):'<div class="empty"><div class="empty-icon">📋</div>אין פעילות עדיין</div>';
+}
+function clearLog(){actLog=[];saveAL();renderLog();}
+
+// ─── EDIT MODAL ───
+function editLead(id){
+  const l=LEADS.find(x=>x.id===id);if(!l)return;
+  document.getElementById('modal-title').textContent=l.name+' — '+l.village;
+  document.getElementById('modal-body').innerHTML=`
+    <div class="mfield"><label>שם</label><input id="m-name" value="${l.name}"></div>
+    <div class="mfield"><label>טלפון</label><input id="m-phone" value="${l.phone}" dir="ltr"></div>
+    <div class="mfield"><label>מייל</label><input id="m-email" value="${l.email}" dir="ltr"></div>
+    <div class="mfield"><label>סטטוס</label><select id="m-status">${STATUSES.map(s=>`<option ${l.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="mfield"><label>תאריך פגישה</label><input type="date" id="m-meet" value="${l.meeting_date}"></div>
+    <div class="mfield"><label>קישור פגישה</label><input id="m-link" value="${l.meeting_link}" dir="ltr" placeholder="https://meet.google.com/..."></div>
+    <div class="mfield"><label>הערות</label><textarea id="m-notes">${l.notes}</textarea></div>`;
+  document.getElementById('modal-footer').innerHTML=`
+    <button class="btn" onclick="closeModal()">ביטול</button>
+    <button class="btn-sm wa" style="padding:8px 16px" onclick="quickSend('${id}');closeModal()">💬 WhatsApp</button>
+    <button class="btn btn-primary" onclick="saveL2('${id}')">💾 שמור</button>`;
+  document.getElementById('overlay').classList.add('open');
+}
+function saveL2(id){
+  const l=LEADS.find(x=>x.id===id);if(!l)return;
+  l.name=document.getElementById('m-name').value;
+  l.phone=document.getElementById('m-phone').value;
+  l.email=document.getElementById('m-email').value;
+  l.status=document.getElementById('m-status').value;
+  l.meeting_date=document.getElementById('m-meet').value;
+  l.meeting_link=document.getElementById('m-link').value;
+  l.notes=document.getElementById('m-notes').value;
+  saveL();log('עודכן: '+l.name+' → '+l.status,'#2563eb');closeModal();renderDashboard();
+  filteredLeads=[...LEADS];renderLeads();
+}
+function closeModal(){document.getElementById('overlay').classList.remove('open');}
+
+function quickSend(id){
+  go('send');
+  setTimeout(()=>{
+    const l=LEADS.find(x=>x.id===id);if(!l)return;
+    let opt=Array.from(document.getElementById('send-sel').options).find(o=>o.value===id);
+    if(!opt){opt=new Option(l.name+' — '+l.village,id);document.getElementById('send-sel').add(opt);}
+    document.getElementById('send-sel').value=id;
+    document.getElementById('send-phone').value=fmtP(l.phone);
+  },150);
+}
+function schedMeeting(id){
+  const l=LEADS.find(x=>x.id===id);if(!l)return;
+  window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('פגישה עם '+l.name)+'&details='+encodeURIComponent(l.village+' · '+l.council)+'&add='+encodeURIComponent(l.email||''),'_blank');
+  log('נפתח יומן: '+l.name,'#7c3aed');
+}
+function updStatus(id,status){const l=LEADS.find(x=>x.id===id);if(!l)return;l.status=status;l.last_contact=todayISO();l.contact_count=String((parseInt(l.contact_count)||0)+1);}
+
+function exportCSV(){
+  const h=['מזהה','מועצה','יישוב','שם','טלפון','מייל','סטטוס','תאריך פנייה','פניות','הערות'];
+  const rows=LEADS.map(l=>[l.id,l.council,l.village,l.name,l.phone,l.email,l.status,l.last_contact,l.contact_count,l.notes].map(v=>'"'+(v||'').replace(/"/g,'""')+'"').join(','));
+  const csv='\uFEFF'+h.join(',')+'\n'+rows.join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='leads_'+todayISO()+'.csv';a.click();
+  log('יוצא CSV '+LEADS.length+' לידים','#2563eb');
+}
+
+function initSelects(){
+  const councils=[...new Set(LEADS.map(l=>l.council))].filter(Boolean).sort();
+  ['l-council','q-council'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    const cur=el.value;
+    while(el.options.length>1)el.remove(1);
+    councils.forEach(c=>{const o=new Option(c,c);el.add(o);});
+    el.value=cur;
+  });
+}
+
+// ─── INIT ───
+load();
+filteredLeads=[...LEADS];
+renderDashboard();
+initSelects();
+</script>
+</body>
+</html>
